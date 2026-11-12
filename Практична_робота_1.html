@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Практична робота №1</title>
+<style>
+  @page { margin: 2cm; }
+  body {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #000;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2cm;
+  }
+  h1 { font-size: 16px; text-align: center; margin-top: 40px; }
+  h2 { font-size: 15px; margin-top: 30px; }
+  h3 { font-size: 14px; margin-top: 20px; }
+  .title-page {
+    text-align: center;
+    page-break-after: always;
+    padding-top: 120px;
+  }
+  .title-page .university { font-size: 14px; margin-bottom: 80px; }
+  .title-page .title { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+  .title-page .subtitle { font-size: 16px; margin-bottom: 80px; }
+  .title-page .student { text-align: right; font-size: 14px; margin-right: 40px; }
+  pre {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 10px;
+    font-size: 12px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    overflow-x: auto;
+    line-height: 1.4;
+  }
+  code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12px;
+    background: #f5f5f5;
+    padding: 1px 4px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  th, td {
+    border: 1px solid #000;
+    padding: 6px 10px;
+    text-align: left;
+  }
+  th { background: #eee; font-weight: bold; }
+  .diagram {
+    text-align: center;
+    margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #ccc;
+  }
+  .diagram pre {
+    display: inline-block;
+    text-align: left;
+    background: white;
+    border: none;
+    font-size: 13px;
+  }
+  .page-break { page-break-before: always; }
+  p { text-indent: 1.25cm; text-align: justify; }
+  .no-indent { text-indent: 0; }
+</style>
+</head>
+<body>
+
+<!-- ==================== ТИТУЛЬНА СТОРІНКА ==================== -->
+<div class="title-page">
+  <div class="university">
+    НАЗВА УНІВЕРСИТЕТУ<br>
+    Факультет / Кафедра
+  </div>
+
+  <div class="title">ПРАКТИЧНА РОБОТА №1</div>
+  <div class="subtitle">
+    Тема: Чиста архітектура та Domain-Driven Design
+  </div>
+
+  <div class="student">
+    Виконав(ла): студент(ка) групи ___<br>
+    ПІБ: ____________________<br><br>
+    Перевірив: ____________________
+  </div>
+
+  <br><br><br><br>
+  <div>2026</div>
+</div>
+
+<!-- ==================== ЗМІСТ ==================== -->
+<h1>Зміст</h1>
+<p class="no-indent">1. Мета роботи</p>
+<p class="no-indent">2. Предметна область</p>
+<p class="no-indent">3. Архітектура проєкту</p>
+<p class="no-indent">4. Доменна модель (DDD)</p>
+<p class="no-indent">5. Bounded Contexts</p>
+<p class="no-indent">6. Лістинги коду</p>
+<p class="no-indent">7. Відповіді на контрольні питання</p>
+<p class="no-indent">8. Висновки</p>
+
+<!-- ==================== 1. МЕТА ==================== -->
+<div class="page-break"></div>
+<h1>1. Мета роботи</h1>
+
+<p>Сформувати практичні навички проєктування архітектури програмної системи з використанням принципів чистої архітектури та Domain-Driven Design, а також навички моделювання предметної області та визначення bounded context.</p>
+
+<!-- ==================== 2. ПРЕДМЕТНА ОБЛАСТЬ ==================== -->
+<h1>2. Предметна область</h1>
+
+<p>Для виконання роботи обрано предметну область <strong>«Інтернет-магазин книг» (BookStore)</strong>. Система дозволяє вести каталог книг, реєструвати клієнтів та обробляти замовлення.</p>
+
+<p>Основні бізнес-процеси:</p>
+<ul>
+  <li>Додавання книг до каталогу з вказанням ціни та кількості на складі</li>
+  <li>Реєстрація клієнтів</li>
+  <li>Створення замовлень з перевіркою наявності книг на складі</li>
+  <li>Підтвердження та скасування замовлень</li>
+</ul>
+
+<!-- ==================== 3. АРХІТЕКТУРА ==================== -->
+<h1>3. Архітектура проєкту</h1>
+
+<h2>3.1. Поділ на шари</h2>
+
+<p>Проєкт побудований відповідно до принципів чистої архітектури та складається з 4 шарів, кожен з яких реалізований як окремий проєкт у рішенні (solution):</p>
+
+<table>
+  <tr>
+    <th>Шар (проєкт)</th>
+    <th>Відповідальність</th>
+    <th>Залежить від</th>
+  </tr>
+  <tr>
+    <td><strong>BookStore.Domain</strong></td>
+    <td>Доменна модель: сутності, value objects, інтерфейси репозиторіїв. Бізнес-логіка та правила.</td>
+    <td><em>Нічого</em> (ядро системи)</td>
+  </tr>
+  <tr>
+    <td><strong>BookStore.Application</strong></td>
+    <td>Прикладні сервіси (use cases), DTO для обміну даними між шарами.</td>
+    <td>Domain</td>
+  </tr>
+  <tr>
+    <td><strong>BookStore.Infrastructure</strong></td>
+    <td>Реалізації репозиторіїв (доступ до даних). Тут — In-Memory сховище.</td>
+    <td>Domain, Application</td>
+  </tr>
+  <tr>
+    <td><strong>BookStore.WebAPI</strong></td>
+    <td>REST API контролери, реєстрація залежностей (DI), точка входу.</td>
+    <td>Application, Infrastructure</td>
+  </tr>
+</table>
+
+<h2>3.2. Структура рішення</h2>
+
+<pre>
+BookStore/
+├── BookStore.sln
+└── src/
+    ├── BookStore.Domain/
+    │   ├── Entities/        (Book.cs, Customer.cs, Order.cs, OrderItem.cs)
+    │   ├── ValueObjects/    (Address.cs, Money.cs)
+    │   ├── Enums/           (OrderStatus.cs)
+    │   └── Interfaces/      (IBookRepository.cs, IOrderRepository.cs, ICustomerRepository.cs)
+    ├── BookStore.Application/
+    │   ├── DTOs/            (BookDto.cs, CreateBookDto.cs, CreateOrderDto.cs, OrderDto.cs)
+    │   ├── Interfaces/      (IBookService.cs, IOrderService.cs)
+    │   └── Services/        (BookService.cs, OrderService.cs)
+    ├── BookStore.Infrastructure/
+    │   └── Repositories/    (InMemoryBookRepository.cs, InMemoryOrderRepository.cs,
+    │                         InMemoryCustomerRepository.cs)
+    └── BookStore.WebAPI/
+        ├── Controllers/     (BooksController.cs, OrdersController.cs)
+        └── Program.cs
+</pre>
+
+<h2>3.3. Напрям залежностей</h2>
+
+<div class="diagram">
+<pre>
+  ┌─────────────────────────┐
+  │   WebAPI (Presentation) │
+  └──────────┬──────────────┘
+             │ залежить від
+             ▼
+  ┌─────────────────────────┐       ┌─────────────────────────┐
+  │     Application         │       │    Infrastructure       │
+  │  (сервіси, use cases)   │       │ (реалізація репозиторіїв)│
+  └──────────┬──────────────┘       └──────────┬──────────────┘
+             │ залежить від                    │ залежить від
+             ▼                                 ▼
+  ┌────────────────────────────────────────────────────────────┐
+  │                     Domain (ядро)                          │
+  │        Сутності, Value Objects, інтерфейси                 │
+  │              НЕ ЗАЛЕЖИТЬ НІ ВІД ЧОГО                       │
+  └────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<p>Ключовий принцип: <strong>залежності спрямовані лише всередину</strong> — зовнішні шари залежать від внутрішніх, але ніколи навпаки. Доменний шар є повністю незалежним.</p>
+
+<!-- ==================== 4. ДОМЕННА МОДЕЛЬ ==================== -->
+<div class="page-break"></div>
+<h1>4. Доменна модель (DDD)</h1>
+
+<h2>4.1. Сутності (Entity)</h2>
+<p>Сутність — об'єкт з унікальним ідентифікатором (Id), який зберігається протягом усього життєвого циклу.</p>
+
+<table>
+  <tr><th>Сутність</th><th>Призначення</th><th>Ключові бізнес-методи</th></tr>
+  <tr>
+    <td><strong>Book</strong></td>
+    <td>Книга в каталозі</td>
+    <td><code>DecreaseStock()</code> — зменшити кількість на складі<br><code>IncreaseStock()</code> — поповнити склад</td>
+  </tr>
+  <tr>
+    <td><strong>Customer</strong></td>
+    <td>Клієнт магазину</td>
+    <td>Валідація при створенні (ПІБ, Email)</td>
+  </tr>
+  <tr>
+    <td><strong>Order</strong></td>
+    <td>Замовлення (Aggregate Root)</td>
+    <td><code>AddItem()</code> — додати позицію<br><code>Confirm()</code> — підтвердити<br><code>Cancel()</code> — скасувати<br><code>GetTotalPrice()</code> — загальна вартість</td>
+  </tr>
+  <tr>
+    <td><strong>OrderItem</strong></td>
+    <td>Позиція замовлення</td>
+    <td><code>GetTotalPrice()</code> — вартість позиції</td>
+  </tr>
+</table>
+
+<h2>4.2. Value Objects (Об'єкти-значення)</h2>
+<p>Value Object — об'єкт без ідентифікатора, який порівнюється за значенням своїх полів. Два об'єкти з однаковими полями вважаються рівними.</p>
+
+<table>
+  <tr><th>Value Object</th><th>Поля</th><th>Призначення</th></tr>
+  <tr>
+    <td><strong>Address</strong></td>
+    <td>City, Street, Building</td>
+    <td>Адреса доставки замовлення</td>
+  </tr>
+  <tr>
+    <td><strong>Money</strong></td>
+    <td>Amount, Currency</td>
+    <td>Грошова сума з валютою (за замовчуванням UAH)</td>
+  </tr>
+</table>
+
+<h2>4.3. Агрегат (Aggregate)</h2>
+<p><strong>Order</strong> є коренем агрегату (Aggregate Root). Він керує колекцією <code>OrderItem</code>. Зовнішній код не може змінювати позиції замовлення напряму — лише через методи <code>Order</code> (наприклад, <code>AddItem()</code>). Колекція <code>Items</code> доступна тільки для читання (<code>IReadOnlyCollection</code>).</p>
+
+<h2>4.4. Інверсія залежностей (Dependency Inversion)</h2>
+<p>Інтерфейси репозиторіїв оголошені у <strong>Domain</strong> (внутрішній шар), а їх реалізації — в <strong>Infrastructure</strong> (зовнішній шар). Завдяки цьому доменний шар не знає, як зберігаються дані.</p>
+
+<table>
+  <tr><th>Інтерфейс (Domain)</th><th>Реалізація (Infrastructure)</th></tr>
+  <tr><td>IBookRepository</td><td>InMemoryBookRepository</td></tr>
+  <tr><td>IOrderRepository</td><td>InMemoryOrderRepository</td></tr>
+  <tr><td>ICustomerRepository</td><td>InMemoryCustomerRepository</td></tr>
+</table>
+
+<!-- ==================== 5. BOUNDED CONTEXTS ==================== -->
+<div class="page-break"></div>
+<h1>5. Bounded Contexts</h1>
+
+<p>У системі виділено три обмежених контексти, кожен з яких має власну доменну модель та бізнес-правила:</p>
+
+<table>
+  <tr><th>Bounded Context</th><th>Відповідальність</th><th>Сутності</th></tr>
+  <tr>
+    <td><strong>Catalog</strong></td>
+    <td>Управління каталогом книг, ціноутворення, облік на складі</td>
+    <td>Book, Money</td>
+  </tr>
+  <tr>
+    <td><strong>Ordering</strong></td>
+    <td>Створення, підтвердження та скасування замовлень</td>
+    <td>Order, OrderItem, Address, OrderStatus</td>
+  </tr>
+  <tr>
+    <td><strong>Customer Management</strong></td>
+    <td>Реєстрація та зберігання даних клієнтів</td>
+    <td>Customer</td>
+  </tr>
+</table>
+
+<h2>5.1. Взаємодія між Bounded Contexts</h2>
+
+<div class="diagram">
+<pre>
+  ┌──────────────────┐         ┌──────────────────┐
+  │     Catalog      │         │    Customer       │
+  │                  │         │    Management     │
+  │   Book, Money    │         │    Customer       │
+  └────────▲─────────┘         └────────▲──────────┘
+           │                            │
+           │ BookId                     │ CustomerId
+           │ (контракт)                 │ (контракт)
+           │                            │
+  ┌────────┴────────────────────────────┴──────────┐
+  │                  Ordering                       │
+  │         Order, OrderItem, Address               │
+  └─────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<p><strong>Ordering → Catalog:</strong> при створенні замовлення перевіряється наявність книги на складі та зменшується кількість. Контексти зв'язані через <code>BookId</code>, а не через прямі посилання на об'єкти.</p>
+
+<p><strong>Ordering → Customer Management:</strong> при створенні замовлення перевіряється існування клієнта. Зв'язок через <code>CustomerId</code>.</p>
+
+<p>Такий підхід дозволяє уникнути змішування бізнес-логіки різних підсистем і забезпечує незалежний розвиток кожного контексту.</p>
+
+<!-- ==================== 6. ЛІСТИНГИ КОДУ ==================== -->
+<div class="page-break"></div>
+<h1>6. Лістинги коду</h1>
+
+<h2>6.1. Доменний шар — сутність Book (Book.cs)</h2>
+<pre>
+using BookStore.Domain.ValueObjects;
+
+namespace BookStore.Domain.Entities;
+
+public class Book
+{
+    public Guid Id { get; private set; }
+    public string Title { get; private set; }
+    public string Author { get; private set; }
+    public string ISBN { get; private set; }
+    public Money Price { get; private set; }
+    public int StockQuantity { get; private set; }
+
+    public Book(Guid id, string title, string author,
+                string isbn, Money price, int stockQuantity)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("Назва книги не може бути порожньою.");
+        if (string.IsNullOrWhiteSpace(author))
+            throw new ArgumentException("Автор не може бути порожнім.");
+        if (stockQuantity &lt; 0)
+            throw new ArgumentException("Кількість не може бути від'ємною.");
+
+        Id = id;
+        Title = title;
+        Author = author;
+        ISBN = isbn;
+        Price = price;
+        StockQuantity = stockQuantity;
+    }
+
+    public void DecreaseStock(int quantity)
+    {
+        if (quantity &lt;= 0)
+            throw new ArgumentException("Кількість має бути більше нуля.");
+        if (StockQuantity &lt; quantity)
+            throw new InvalidOperationException("Недостатньо книг на складі.");
+        StockQuantity -= quantity;
+    }
+
+    public void IncreaseStock(int quantity)
+    {
+        if (quantity &lt;= 0)
+            throw new ArgumentException("Кількість має бути більше нуля.");
+        StockQuantity += quantity;
+    }
+}
+</pre>
+
+<h2>6.2. Доменний шар — агрегат Order (Order.cs)</h2>
+<pre>
+using BookStore.Domain.Enums;
+using BookStore.Domain.ValueObjects;
+
+namespace BookStore.Domain.Entities;
+
+public class Order
+{
+    public Guid Id { get; private set; }
+    public Guid CustomerId { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    public OrderStatus Status { get; private set; }
+    public Address DeliveryAddress { get; private set; }
+
+    private readonly List&lt;OrderItem&gt; _items = new();
+    public IReadOnlyCollection&lt;OrderItem&gt; Items =&gt; _items.AsReadOnly();
+
+    public Order(Guid id, Guid customerId, Address deliveryAddress)
+    {
+        Id = id;
+        CustomerId = customerId;
+        DeliveryAddress = deliveryAddress;
+        CreatedAt = DateTime.UtcNow;
+        Status = OrderStatus.Created;
+    }
+
+    public void AddItem(Guid bookId, string bookTitle,
+                        int quantity, Money unitPrice)
+    {
+        if (Status != OrderStatus.Created)
+            throw new InvalidOperationException(
+                "Не можна змінювати підтверджене замовлення.");
+        var item = new OrderItem(Guid.NewGuid(), bookId,
+                                 bookTitle, quantity, unitPrice);
+        _items.Add(item);
+    }
+
+    public decimal GetTotalPrice() =&gt;
+        _items.Sum(item =&gt; item.GetTotalPrice());
+
+    public void Confirm()
+    {
+        if (Status != OrderStatus.Created)
+            throw new InvalidOperationException(
+                "Замовлення можна підтвердити лише зі статусу Created.");
+        if (!_items.Any())
+            throw new InvalidOperationException(
+                "Не можна підтвердити порожнє замовлення.");
+        Status = OrderStatus.Confirmed;
+    }
+
+    public void Cancel()
+    {
+        if (Status == OrderStatus.Delivered)
+            throw new InvalidOperationException(
+                "Не можна скасувати доставлене замовлення.");
+        Status = OrderStatus.Cancelled;
+    }
+}
+</pre>
+
+<h2>6.3. Доменний шар — Value Object Address (Address.cs)</h2>
+<pre>
+namespace BookStore.Domain.ValueObjects;
+
+public class Address
+{
+    public string City { get; }
+    public string Street { get; }
+    public string Building { get; }
+
+    public Address(string city, string street, string building)
+    {
+        if (string.IsNullOrWhiteSpace(city))
+            throw new ArgumentException("Місто не може бути порожнім.");
+        if (string.IsNullOrWhiteSpace(street))
+            throw new ArgumentException("Вулиця не може бути порожньою.");
+        if (string.IsNullOrWhiteSpace(building))
+            throw new ArgumentException("Будинок не може бути порожнім.");
+        City = city;
+        Street = street;
+        Building = building;
+    }
+
+    // Value Object порівнюється за значенням
+    public override bool Equals(object? obj)
+    {
+        if (obj is not Address other) return false;
+        return City == other.City
+            &amp;&amp; Street == other.Street
+            &amp;&amp; Building == other.Building;
+    }
+
+    public override int GetHashCode() =&gt;
+        HashCode.Combine(City, Street, Building);
+}
+</pre>
+
+<h2>6.4. Прикладний шар — сервіс OrderService (OrderService.cs)</h2>
+<pre>
+using BookStore.Application.DTOs;
+using BookStore.Application.Interfaces;
+using BookStore.Domain.Entities;
+using BookStore.Domain.Interfaces;
+using BookStore.Domain.ValueObjects;
+
+namespace BookStore.Application.Services;
+
+public class OrderService : IOrderService
+{
+    private readonly IOrderRepository _orderRepository;
+    private readonly IBookRepository _bookRepository;
+    private readonly ICustomerRepository _customerRepository;
+
+    public OrderService(IOrderRepository orderRepository,
+        IBookRepository bookRepository,
+        ICustomerRepository customerRepository)
+    {
+        _orderRepository = orderRepository;
+        _bookRepository = bookRepository;
+        _customerRepository = customerRepository;
+    }
+
+    public async Task&lt;OrderDto&gt; CreateOrderAsync(CreateOrderDto dto)
+    {
+        var customer = await _customerRepository.GetByIdAsync(dto.CustomerId);
+        if (customer == null)
+            throw new ArgumentException("Клієнта не знайдено.");
+
+        var address = new Address(dto.City, dto.Street, dto.Building);
+        var order = new Order(Guid.NewGuid(), dto.CustomerId, address);
+
+        foreach (var itemDto in dto.Items)
+        {
+            var book = await _bookRepository.GetByIdAsync(itemDto.BookId);
+            if (book == null)
+                throw new ArgumentException("Книгу не знайдено.");
+
+            book.DecreaseStock(itemDto.Quantity);
+            await _bookRepository.UpdateAsync(book);
+            order.AddItem(book.Id, book.Title,
+                          itemDto.Quantity, book.Price);
+        }
+
+        await _orderRepository.AddAsync(order);
+        return MapToDto(order);
+    }
+    // ... інші методи
+}
+</pre>
+
+<h2>6.5. Інфраструктурний шар — InMemoryBookRepository</h2>
+<pre>
+using BookStore.Domain.Entities;
+using BookStore.Domain.Interfaces;
+
+namespace BookStore.Infrastructure.Repositories;
+
+public class InMemoryBookRepository : IBookRepository
+{
+    private readonly List&lt;Book&gt; _books = new();
+
+    public Task&lt;Book?&gt; GetByIdAsync(Guid id)
+    {
+        var book = _books.FirstOrDefault(b =&gt; b.Id == id);
+        return Task.FromResult(book);
+    }
+
+    public Task&lt;IEnumerable&lt;Book&gt;&gt; GetAllAsync() =&gt;
+        Task.FromResult&lt;IEnumerable&lt;Book&gt;&gt;(_books.ToList());
+
+    public Task AddAsync(Book book)
+    {
+        _books.Add(book);
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateAsync(Book book) =&gt; Task.CompletedTask;
+
+    public Task DeleteAsync(Guid id)
+    {
+        var book = _books.FirstOrDefault(b =&gt; b.Id == id);
+        if (book != null) _books.Remove(book);
+        return Task.CompletedTask;
+    }
+}
+</pre>
+
+<h2>6.6. Презентаційний шар — BooksController</h2>
+<pre>
+using Microsoft.AspNetCore.Mvc;
+using BookStore.Application.DTOs;
+using BookStore.Application.Interfaces;
+
+namespace BookStore.WebAPI.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class BooksController : ControllerBase
+{
+    private readonly IBookService _bookService;
+
+    public BooksController(IBookService bookService)
+    {
+        _bookService = bookService;
+    }
+
+    [HttpGet]
+    public async Task&lt;IActionResult&gt; GetAll()
+    {
+        var books = await _bookService.GetAllAsync();
+        return Ok(books);
+    }
+
+    [HttpGet("{id}")]
+    public async Task&lt;IActionResult&gt; GetById(Guid id)
+    {
+        var book = await _bookService.GetByIdAsync(id);
+        if (book == null) return NotFound();
+        return Ok(book);
+    }
+
+    [HttpPost]
+    public async Task&lt;IActionResult&gt; Create([FromBody] CreateBookDto dto)
+    {
+        var book = await _bookService.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById),
+            new { id = book.Id }, book);
+    }
+}
+</pre>
+
+<h2>6.7. Реєстрація залежностей — Program.cs</h2>
+<pre>
+using BookStore.Application.Interfaces;
+using BookStore.Application.Services;
+using BookStore.Domain.Interfaces;
+using BookStore.Infrastructure.Repositories;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Dependency Injection:
+// Інтерфейси з Domain → реалізації з Infrastructure
+builder.Services.AddSingleton&lt;IBookRepository, InMemoryBookRepository&gt;();
+builder.Services.AddSingleton&lt;IOrderRepository, InMemoryOrderRepository&gt;();
+builder.Services.AddSingleton&lt;ICustomerRepository, InMemoryCustomerRepository&gt;();
+
+// Інтерфейси з Application → реалізації з Application
+builder.Services.AddScoped&lt;IBookService, BookService&gt;();
+builder.Services.AddScoped&lt;IOrderService, OrderService&gt;();
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+app.MapControllers();
+app.Run();
+</pre>
+
+<!-- ==================== 7. КОНТРОЛЬНІ ПИТАННЯ ==================== -->
+<div class="page-break"></div>
+<h1>7. Відповіді на контрольні питання</h1>
+
+<p><strong>1. У чому полягає основна ідея чистої архітектури?</strong></p>
+<p>Чиста архітектура передбачає поділ програмної системи на шари з чітко визначеними відповідальностями, де залежності спрямовані від зовнішніх шарів до внутрішніх. Основна ідея — бізнес-логіка (доменний шар) є повністю незалежною від фреймворків, баз даних та інтерфейсів користувача. Це робить систему тестованою, підтримуваною та гнучкою до змін.</p>
+
+<p><strong>2. Що таке Domain-Driven Design та яка його роль в архітектурі ПЗ?</strong></p>
+<p>Domain-Driven Design — це підхід до розробки програмного забезпечення, що зосереджується на глибокому моделюванні предметної області. Він допомагає перенести реальні бізнес-процеси в код за допомогою сутностей (Entity), об'єктів-значень (Value Object), агрегатів (Aggregate) та обмежених контекстів (Bounded Context). Роль DDD — забезпечити, щоб структура коду відображала бізнес-логіку, а не була прив'язана до технічних деталей реалізації.</p>
+
+<p><strong>3. Яке призначення bounded context?</strong></p>
+<p>Bounded context визначає межі застосування певної доменної моделі. Він дозволяє уникнути семантичних конфліктів між різними частинами системи. Наприклад, сутність «Клієнт» у контексті замовлень та у контексті маркетингу може мати різну структуру та поведінку. Кожен bounded context має власну модель, а взаємодія між контекстами здійснюється через чітко визначені контракти (наприклад, через ідентифікатори).</p>
+
+<p><strong>4. Які залежності дозволені між шарами системи?</strong></p>
+<p>Залежності спрямовані від зовнішніх шарів до внутрішніх: WebAPI → Application → Domain. Інфраструктурний шар також залежить від Domain. Доменний шар не залежить від жодного іншого шару — це ядро системи. Взаємодія між шарами здійснюється через абстракції (інтерфейси), що забезпечує слабку зв'язаність та можливість заміни реалізацій без зміни бізнес-логіки.</p>
+
+<p><strong>5. Чому доменна модель повинна бути ізольованою від інфраструктури?</strong></p>
+<p>Ізоляція доменної моделі від інфраструктури дає кілька переваг: (1) можливість тестувати бізнес-логіку без залежності від бази даних та фреймворків; (2) можливість замінювати інфраструктурні компоненти (наприклад, перейти з In-Memory сховища на SQL Server) без зміни бізнес-логіки; (3) зменшення зв'язаності — зміни в базі даних або API не впливають на доменну логіку; (4) підвищення читабельності коду, оскільки бізнес-правила зосереджені в одному місці.</p>
+
+<!-- ==================== 8. ВИСНОВКИ ==================== -->
+<h1>8. Висновки</h1>
+
+<p>У ході виконання практичної роботи було спроєктовано архітектуру програмної системи «Інтернет-магазин книг» з використанням принципів чистої архітектури та Domain-Driven Design.</p>
+
+<p>Було створено проєкт ASP.NET Core з поділом на 4 шари: Domain, Application, Infrastructure та WebAPI. Доменний шар містить сутності (Book, Customer, Order, OrderItem), об'єкти-значення (Address, Money) та інтерфейси репозиторіїв, при цьому він не залежить від жодного зовнішнього компонента.</p>
+
+<p>Визначено 3 bounded contexts: Catalog (каталог книг), Ordering (управління замовленнями) та Customer Management (управління клієнтами). Взаємодія між контекстами здійснюється через ідентифікатори (BookId, CustomerId), що забезпечує слабку зв'язаність.</p>
+
+<p>Реалізовано принцип інверсії залежностей: інтерфейси репозиторіїв оголошені в доменному шарі, а їх реалізації — в інфраструктурному, що дозволяє легко замінити спосіб зберігання даних без зміни бізнес-логіки.</p>
+
+</body>
+</html>

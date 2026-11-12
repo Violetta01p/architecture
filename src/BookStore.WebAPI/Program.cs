@@ -5,13 +5,13 @@ using BookStore.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Реєстрація залежностей (Dependency Injection)
-// Інтерфейси з Domain → реалізації з Infrastructure
+// Dependency Injection:
+// Domain interfaces -> Infrastructure implementations
 builder.Services.AddSingleton<IBookRepository, InMemoryBookRepository>();
 builder.Services.AddSingleton<IOrderRepository, InMemoryOrderRepository>();
 builder.Services.AddSingleton<ICustomerRepository, InMemoryCustomerRepository>();
 
-// Інтерфейси з Application → реалізації з Application
+// Application interfaces -> Application services
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
@@ -21,11 +21,12 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Enable Swagger UI
+app.UseSwagger();
+app.UseSwaggerUI();
+
+// Redirect root to swagger
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.MapControllers();
 app.Run();
